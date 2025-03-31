@@ -9,6 +9,7 @@ import time
 import matplotlib.dates as mdates
 from matplotlib.ticker import FuncFormatter
 from datetime import datetime
+from p_tqdm import p_map
 
 # Import project modules
 from models.pairs_generation import find_cointegrated_pairs, compute_hedge_ratio, compute_spread
@@ -776,6 +777,28 @@ def run_analysis_and_report(train_data, test_data, benchmark_name='^IXIC'):
     print("\nCalculating optimal weights...")
     weights = {}
 
+    def process_filter(filter_item):
+        filter_name, filter_returns = filter_item
+        if not filter_returns.empty:
+            return filter_name, optimize_weights(
+                filter_returns,
+                method=config.OPTIMIZATION_METHOD,
+                no_short=config.NO_SHORT,
+                max_iter=config.OPTIMIZATION_MAX_ITER
+            )
+        else:
+            return filter_name, pd.Series()
+
+    # Filter out 'Unfiltered' items and prepare data for parallel processing
+    filter_items = [(name, returns) for name, returns in train_returns.items()
+                    if name != 'Unfiltered']
+
+    # Run optimizations in parallel with progress bar
+    results = p_map(process_filter, filter_items, desc="Optimizing weights")
+
+    # Convert results back to dictionary
+    weights = dict(results)
+
     # Unfiltered pairs
     weights['Unfiltered'] = optimize_weights(
         train_returns['Unfiltered'],
@@ -783,18 +806,6 @@ def run_analysis_and_report(train_data, test_data, benchmark_name='^IXIC'):
         no_short=config.NO_SHORT,
         max_iter=config.OPTIMIZATION_MAX_ITER
     )
-
-    # Filtered pairs
-    for filter_name, filter_returns in train_returns.items():
-        if filter_name != 'Unfiltered' and not filter_returns.empty:
-            weights[filter_name] = optimize_weights(
-                filter_returns,
-                method=config.OPTIMIZATION_METHOD,
-                no_short=config.NO_SHORT,
-                max_iter=config.OPTIMIZATION_MAX_ITER
-            )
-        elif filter_name != 'Unfiltered':
-            weights[filter_name] = pd.Series()
 
     # Save weights to CSV
     for name, weight_series in weights.items():
