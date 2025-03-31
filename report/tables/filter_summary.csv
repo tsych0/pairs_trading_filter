@@ -1,7 +1,6 @@
 Filter,Number of Pairs,Reduction (%)
 Unfiltered,648,0.0
 SSD Filter,342,47.22222222222222
-Fractional Cointegration,40,93.82716049382715
-Half-Life,95,85.3395061728395
-Hurst Exponent,0,100.0
-Volatility Regime,0,100.0
+Fractional Cointegration,188,70.98765432098766
+Half-Life,280,56.79012345679012
+Hurst Exponent,337,47.99382716049383

@@ -29,12 +29,12 @@ FRAC_D_MAX = 0.8
 FRAC_ADF_THRESHOLD = -3.5
 
 # Half-Life Filter
-HALF_LIFE_MIN = 1
-HALF_LIFE_MAX = 20
+HALF_LIFE_MIN = 20
+HALF_LIFE_MAX = 50
 
 # Hurst Exponent Filter
-HURST_MIN = 0.0
-HURST_MAX = 0.49
+HURST_MIN = 0.2
+HURST_MAX = 0.96
 
 # Volatility Regime Filter
 MAX_HIGH_VOL_PCT = 0.65
